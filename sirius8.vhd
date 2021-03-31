@@ -84,7 +84,7 @@ signal Display_in: std_logic_vector (11 downto 0);
 
 -- Clock system
 component Clock
-generic (div: integer := 25);
+generic (div: integer := 22);
 port(ClkIn: in std_logic; ClkOut: out std_logic);
 end component;
 

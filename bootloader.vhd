@@ -39,10 +39,10 @@ end component;
 begin
 
 	load : process(Clk, Rst) -- sensível ao clock e reset 
-	variable line_debug : line;
+	variable LineDebug: line;
 	variable Loaded: BIT := '0';
-	variable reset: BIT := '0';
-	variable reset_cnt: integer := 0;
+	variable Reset: BIT := '0';
+	variable ResetCnt: integer := 0;
 	begin
 		 if(Rst = '1') then Cycle <= "00";	-- estado inicial
 		 elsif(Clk'event and Clk = '1') then  
@@ -56,104 +56,110 @@ begin
 
 		 if (Clk'event and Clk = '0') then
 			if (Loaded = '0') then 
-				 if (Address = "00000000") then
+				if (Address = "00000000")    then -- 00
 					Output <= "001011111100";
 					Loaded := '0';
-					reset := '0';
-					--write(line_debug, string'("A=0"));
-				 elsif (Address = "00000001") then
+					Reset := '0';
+				elsif (Address = "00000001") then -- 01
 					Output <= "001100000001";
 					Loaded := '0';
-					reset := '0';
-				 elsif (Address = "00000010") then
+					Reset := '0';
+				elsif (Address = "00000010") then -- 02
 					Output <= "100100000001";
 					Loaded := '0';
-					reset := '0';
-				 elsif (Address = "00000011") then
+					Reset := '0';
+				elsif (Address = "00000011") then -- 03
 					Output <= "000100000001";
 					Loaded := '0';
-					reset := '0';
-				 elsif (Address = "00000100") then
-					Output <= "001100000011";
+					Reset := '0';
+				elsif (Address = "00000100") then -- 04
+					Output <= "101000001000";
 					Loaded := '0';
-					reset := '0';
-				 elsif (Address = "00000101") then
-					Output <= "100000000000";
+					Reset := '0';
+				elsif (Address = "00000101") then -- 05
+					Output <= "001100000010";
 					Loaded := '0';
-					reset := '0';
-				 elsif (Address = "00000110") then
+					Reset := '0';
+				elsif (Address = "00000110") then -- 06
+					Output <= "101000001101";
+					Loaded := '0';
+					Reset := '0';
+				elsif (Address = "00000111") then -- 07
 					Output <= "000100000000";
 					Loaded := '0';
-					reset := '0';
-				 else
+					Reset := '0';
+				elsif (Address = "00001000") then -- 08
+					Output <= "001100000100";
+					Loaded := '0';
+					Reset := '0';
+				elsif (Address = "00001001") then -- 09
+					Output <= "101000001011";
+					Loaded := '0';
+					Reset := '0';
+				elsif (Address = "00001010") then -- 10
+					Output <= "101100000000";
+					Loaded := '0';
+					Reset := '0';
+				elsif (Address = "00001011") then -- 11
+					Output <= "001100000101";
+					Loaded := '0';
+					Reset := '0';
+				elsif (Address = "00001100") then -- 12
+					Output <= "101100000000";
+					Loaded := '0';
+					Reset := '0';
+				elsif (Address = "00001101") then -- 13
+					Output <= "010000000011";
+					Loaded := '0';
+					Reset := '0';
+				elsif (Address = "00001110") then -- 14
+					Output <= "100000000000";
+					Loaded := '0';
+					Reset := '0';
+				elsif (Address = "00001111") then -- 15
+					Output <= "101100000000";
+					Loaded := '0';
+					Reset := '0';
+				else
 					Output <= "000000000000";
 					Loaded := '1';
-					reset := '1';
-				 end if;
+					Reset := '1';
+				end if;
 				 
-				 --write(line_debug, Cycle);
-				 if (Cycle = "00") then -- PcOut, MarIn => BUS = MAR = 0, 1, 2, 3 
+				 --write(LineDebug, Cycle);
+				if (Cycle = "00")    then -- PcOut, MarIn => BUS = MAR = 0, 1, 2, 3 
 					PcInc <= '0';
 					PcOut <= '1';
 					MarIn <= '1';
 					RamWr <= '0';
 					RamOut <= '0';
 					BootOut <= '0';
-				 elsif (Cycle = "01") then -- PcInc, RamIn, RamWR, BootOut => PC = 1, MAR = 0, BUS = BootOut = RAM = 10, 5, 7, 13
+				elsif (Cycle = "01") then -- PcInc, RamIn, RamWR, BootOut => PC = 1, MAR = 0, BUS = BootOut = RAM = 10, 5, 7, 13
 					PcInc <= '1';
 					PcOut <= '0';
 					MarIn <= '0';
 					RamWr <= '1';
 					RamOut <= '0';
 					BootOut <= '1';
-				 elsif (Cycle = "10") then -- PcOut = 0, 1, 2, 3 
+				elsif (Cycle = "10") then -- PcOut = 0, 1, 2, 3 
 					PcInc <= '0';
 					PcOut <= '1';
 					MarIn <= '0';
 					RamWr <= '0';
 					RamOut <= '0';
 					BootOut <= '0';
-				 elsif (Cycle = "11") then -- RamOut = 10, 5, 7, 13
+				elsif (Cycle = "11") then -- RamOut = 10, 5, 7, 13
 					PcInc <= '0';
 					PcOut <= '0';
 					MarIn <= '0';
 					RamWr <= '0';
 					RamOut <= '1';
 					BootOut <= '0';
-				 end if;
+				end if;
 			else
---				if(reset_cnt > 3) then
---					if (Cycle = "00") then
---						PcInc <= '0';
---						PcOut <= '1';
---						MarIn <= '1';
---						RamWr <= '0';
---						RamOut <= '0';
---						BootOut <= '0';
---					 elsif (Cycle = "01") then -- RamOut => BUS = RAM = 10, 5, 7, 13
---						PcInc <= '0';
---						PcOut <= '0';
---						MarIn <= '0';
---						RamWr <= '0';
---						RamOut <= '1';
---						BootOut <= '0';
---					 elsif (Cycle = "10") then
---						PcInc <= '0';
---						PcOut <= '0';
---						MarIn <= '0';
---						RamWr <= '0';
---						RamOut <= '1';
---						BootOut <= '0';
---					 elsif (Cycle = "11") then
---						PcInc <= '1';
---						PcOut <= '0';
---						MarIn <= '0';
---						RamWr <= '0';
---						RamOut <= '1';
---						BootOut <= '0';
---					 end if;
---				 end if;
-				 reset_cnt := reset_cnt + 1;
+				if ResetCnt < 2 then
+					ResetCnt := ResetCnt + 1;
+				end if;
 			end if;
 		end if;
 		
@@ -163,7 +169,7 @@ begin
 			Ready <= '0';
 		end if;
 
-		if (reset = '1' and reset_cnt < 2) then
+		if (Reset = '1' and ResetCnt < 2) then
 			PcReset <= '1';
 		else
 			PcReset <= '0';
