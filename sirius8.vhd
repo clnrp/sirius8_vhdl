@@ -67,7 +67,7 @@ signal nReset  : std_logic;
 signal nPcInc  : std_logic;
 signal nMarIn  : std_logic;
 signal nRamWr  : std_logic;
-signal Reset_bt: std_logic;
+signal btReset : std_logic;
 signal FlagsIn : std_logic;
 
 -- Other signals
@@ -156,7 +156,7 @@ begin
 
 	-- Bottons
    Reset    <= not D(0);
-	Reset_bt <= not D(1);
+	btReset  <= not D(1);
 
 	-- Encode mux output
 	Mux_enc(0) <= (PcOut and Run) or (bPcOut and not Run);
@@ -172,7 +172,7 @@ begin
 	Sys_clock: Clock port map(clk, SysClock);
 
 	-- PC - program counter of 8 bits
-	nReset <= Reset or bPcReset or Reset_bt;
+	nReset <= Reset or bPcReset or btReset;
 	nPcInc <= (PcInc and Run) or (bPcInc and not Run);
 	Pc_8b: Counter_8b port map(SysClock, nReset, nPcInc, Jump, Bus12b(7 downto 0), Pc_out);
 	Mux_in(7 downto  0 )  <= Pc_out;

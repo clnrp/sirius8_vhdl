@@ -40,6 +40,7 @@ end InstructionDecoder;
 architecture Sirius8_Arch of InstructionDecoder is
 
 signal NOP,O_JUMP,LDA,SUM,SUB,O_AND,O_OR,O_XOR,LDC,BTR,CALL,RET: std_logic;
+signal nClock: std_logic;
 signal EndCycle: std_logic;
 signal OpCode: std_logic_vector (3 downto 0);
 signal CountBits: std_logic_vector (3 downto 0);
@@ -58,10 +59,10 @@ port(Clk, Rst, En, Sen, Load: in std_logic; Input : in std_logic_vector (3 downt
 end component;
 
 begin
-
+	nClock <= not Clk;
 	OpCode <= Code(11 downto 8);
 
-	cnt_cycle : Counter_4b port map(Clk, Rst, Run, '1', EndCycle, "0000", CountBits);
+	cnt_cycle : Counter_4b port map(nClock, Rst, Run, '1', EndCycle, "0000", CountBits);
 	dec_cycle : BinaryDecoder generic map(4, 16) port map(CountBits, Cycle);
 	dec_inst  : BinaryDecoder generic map(4, 16) port map(OpCode, Operation);
 	
