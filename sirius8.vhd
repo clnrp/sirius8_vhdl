@@ -9,11 +9,13 @@ use ieee.STD_LOGIC_ARITH.ALL;
 entity Sirius8 is
 Port(
 	clk: in std_logic;
+	HardReset: in std_logic;
 	dig: out std_logic_vector (3 downto 0);   -- saída de 4 bits, bit mais significativo a esquerda
 	seg: out std_logic_vector (7 downto 0);	-- saída de 8 bits		  
 	D: in std_logic_vector (3 downto 0);      -- 4 buttons
 	E: out std_logic_vector (3 downto 0);     -- 4 Leds
-	T: inout std_logic_vector (2 downto 0)
+	T: inout std_logic_vector (2 downto 0);
+	Bl: in std_logic_vector (11 downto 0)     -- Boot load line
 );
 end Sirius8;
 
@@ -68,7 +70,10 @@ signal nPcInc  : std_logic;
 signal nMarIn  : std_logic;
 signal nRamWr  : std_logic;
 signal btReset : std_logic;
+signal btBlw   : std_logic;
+signal btRun   : std_logic;
 signal FlagsIn : std_logic;
+signal Ready : std_logic;
 
 -- Other signals
 signal Alu_flags  : std_logic_vector (7 downto 0);
@@ -84,7 +89,7 @@ signal Display_in: std_logic_vector (11 downto 0);
 
 -- Clock system
 component Clock
-generic (div: integer := 22);
+generic (div: integer := 24);
 port(ClkIn: in std_logic; ClkOut: out std_logic);
 end component;
 
@@ -94,7 +99,7 @@ end component;
 
 -- Boot loader - Load the program to RAM
 component BootLoader
-port(Clk, Rst: in std_logic; Address: in std_logic_vector (7 downto 0); PcInc, PcOut, PcReset, MarIn, RamWr, RamOut, BootOut, Ready: out std_logic; Output: out std_logic_vector (11 downto 0));
+port(Clk, Rst: in std_logic; Bl: in std_logic_vector (11 downto 0); Blw: in std_logic; Run: in std_logic; Address: in std_logic_vector (7 downto 0); PcInc, PcOut, PcReset, MarIn, RamWr, RamOut, BootOut, Ready: out std_logic; Output: out std_logic_vector (11 downto 0));
 end component;
 
 -- ALU
@@ -155,8 +160,10 @@ end component;
 begin
 
 	-- Bottons
-   Reset    <= not D(0);
-	btReset  <= not D(1);
+   Reset    <= not HardReset;
+	btReset  <= '0';
+	btBlw    <= not D(0);
+	btRun    <= not D(3);
 
 	-- Encode mux output
 	Mux_enc(0) <= (PcOut and Run) or (bPcOut and not Run);
@@ -178,7 +185,7 @@ begin
 	Mux_in(7 downto  0 )  <= Pc_out;
 	Mux_in(11 downto 8 )  <= "0000";
 
-	Boot: BootLoader port map(SysClock, Reset, Pc_out, bPcInc, bPcOut, bPcReset, bMarIn, bRamWr, bRamOut, BootOut, Run, Boot_out);
+	Boot: BootLoader port map(SysClock, Reset, Bl, btBlw, btRun, Pc_out, bPcInc, bPcOut, bPcReset, bMarIn, bRamWr, bRamOut, BootOut, Run, Boot_out);
 	Mux_in(23 downto 12)  <= Boot_out;
 	
 	-- MAR - memory address register
@@ -234,7 +241,7 @@ begin
 	
 	E(0) <= not Run;
 	E(1) <= not bPcReset; 
-	E(2) <= '1';
-	E(3) <= '1';
+	E(2) <= not btBlw; --SysClock;
+	E(3) <= not Reset;
 
 end Sirius8_Arch;
